@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;   // TODO (Feature 1 and Feature 2): import java.util.concurrent.locks.ReentrantLock;
 // TODO (Feature 1 and Feature 2): import java.util.concurrent.locks.ReentrantLock;
 // TODO (Feature 3):               import java.util.concurrent.Semaphore;
 
@@ -107,7 +108,7 @@ class SharedStats {
 class ReadyQueue {
     private final LinkedList<Thread> list = new LinkedList<>();   // FIFO queue of threads
     private final Map<Thread, Process> map = new HashMap<>();     // thread -> process (same idea as Assignment 1)
-
+    private final ReentrantLock queueLock = new ReentrantLock();   // TODO Feature 1: lock protecting `list` and `map` 1111111111111
     // TODO Feature 1: declare the lock protecting `list` and `map` here
 
     // TODO Feature 3: declare the counting semaphore that counts the processes waiting in the ready queue here
@@ -115,9 +116,14 @@ class ReadyQueue {
     // Add a process to the ready queue (new process, or a process that did not finish its quantum)
     public void add(Process process) {
         // TODO Feature 1: protect this critical section
-        Thread thread = new Thread(process);
-        list.add(thread);
-        map.put(thread, process);
+        queueLock.lock();              //protect this critical section using ReentrantLock  1111111
+        try {
+            Thread thread = new Thread(process);
+            list.add(thread);
+            map.put(thread, process);
+        } finally {
+            queueLock.unlock();        // Ensure the lock is always released 111111111
+        }
 
         // TODO Feature 3: signal that one more process is available in the queue
 
@@ -130,29 +136,43 @@ class ReadyQueue {
     // Remove and return the thread at the head of the queue (or null if the queue is empty)
     public Thread poll() {
         // TODO Feature 1: protect this critical section
+        queueLock.lock();                   //protect this critical section to ensure thread-safe queue polling  1111111
+        try{
         if (list.isEmpty()) {
             return null;
         }
         Thread head = list.getFirst();      // 1) read the head of the queue
         RaceWindow.pause();                 //    <- another CPU can read the SAME head here
         list.removeFirst();                 // 2) remove the head (it may be a different thread by now!)
-        return head;
+        return head;}
+        finally{
+            queueLock.unlock();             // Ensure the lock is always released 111111111
+        }
     }
 
     public Process processOf(Thread thread) {
         // TODO Feature 1: protect this access
-        return map.get(thread);
-    }
+        queueLock.lock();                    //protect this access to the shared map 11111111
+        try{
+        return map.get(thread);}
+         finally{
+            queueLock.unlock();             // Ensure the lock is always released 111111111
+        } }
 
     // Names of the processes currently waiting in the queue (used to display the ready queue)
     public String snapshot() {
         // TODO Feature 1: protect this critical section
+        queueLock.lock();        //protect this critical section to avoid ConcurrentModificationException during iteration 111111
+        try{
         StringBuilder sb = new StringBuilder();
         for (Thread t : list) {
             if (sb.length() > 0) sb.append(" → ");
             sb.append(map.get(t).getName());
         }
-        return sb.length() == 0 ? "empty" : sb.toString();
+        return sb.length() == 0 ? "empty" : sb.toString();}
+        finally{
+            queueLock.unlock();             // Ensure the lock is always released 111111111
+        }
     }
 }
 
