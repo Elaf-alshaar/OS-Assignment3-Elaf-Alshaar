@@ -32,11 +32,11 @@
 
 | Field | Your Answer |
 |-------|-------------|
-| **Full Name** | [Write your full name here] |
-| **Student ID** | [Write your student ID here] |
-| **University Email** | [yourid]@std.psau.edu.sa |
-| **GitHub Username** | [your-github-username] |
-| **Repository Link** | [Paste your repository link here] |
+| **Full Name** | [Elaf mohammed alshaar] |
+| **Student ID** | [446052680] |
+| **University Email** | 446052680@std.psau.edu.sa |
+| **GitHub Username** | [Elaf-alshaar] |
+| **Repository Link** | [https://github.com/Elaf-alshaar/OS-Assignment3-Elaf-Alshaar] |
  
 ---
 
@@ -132,81 +132,116 @@
 
 ## Your Development Log
 
-### Entry 1 - [Date and Time]
-**What I did**:
+### Entry 1 - [ November 6, 2026, 4:30 PM ]
+**What I did**: Forked the repository, renamed it, set my student ID, and ran the starter code
 
 **Details**:
+- Forked the starter repository.
+- Renamed the repository to OS-Assignment3-Elaf-Alshaar.
+- Set my student ID in SchedulerSimulationSync.java.
+- Ran the original program to observe the synchronization problems.
+- Saved the console output for later comparison.
+- Created the initial commit with my student ID.
+  
+**Challenges**: I was not sure how the synchronization bugs were related to each other
 
-**Challenges**:
+**Solution**: I read the README carefully and learned that Feature 1 must be completed before Feature 2 because   queue errors can hide other problems.
 
-**Solution**:
-
-**Time spent**:
+**Time spent**: 1 hour
 
 ---
 
-### Entry 2 - [Date and Time]
-**What I did**:
+### Entry 2 - [ November 6, 2026, 7:00 PM]
+**What I did**: Implemented Feature 1 using ReentrantLock in ReadyQueue
 
 **Details**:
+- Added a ReentrantLock named queueLock.
+- Protected add(), poll(), processOf(), and snapshot().
+- Used lock() with try/finally in every protected section.
+- Added comments explaining the synchronization changes.
+- Created the seconed commit
 
-**Challenges**:
+**Challenges**: I was unsure whether snapshot() also needed protection because it only reads data.
 
-**Solution**:
+**Solution**: After reading the instructions again I realized that iterating over the queue without synchronization could cause a ConcurrentModificationException, so I protected it as well
 
-**Time spent**:
+**Time spent**: 1 hour
 
 ---
 
-### Entry 3 - [Date and Time]
-**What I did**:
+### Entry 3 - [November 6, 2026, 10:00 PM]
+**What I did**: implemented Feature 2 to protect shared statistics
 
 **Details**:
+- Added one ReentrantLock for the shared statistics.
+- Protected:
+- incrementContextSwitch()
+- incrementCompletedProcess()
+- addServiceTime()
+- Protected all getter methods.
+- Tested the program multiple times after the changes.
+- Created the thierd commit.
+  
+**Challenges**: I had to decide whether to use one lock for all counters or a separate lock for each counter
 
-**Challenges**:
+**Solution**: i choose one lock because the shared statistics are simple counters and using a single lock made the implementation easier and easier to maintain.
 
-**Solution**:
-
-**Time spent**:
+**Time spent**: 50 minutes 
 
 ---
 
-### Entry 4 - [Date and Time]
-**What I did**:
+### Entry 4 - [November 14, 2026, 6:00 PM]
+**What I did**:  Implemented Feature 3 by replacing busy waiting with a counting semaphore.
 
 **Details**:
+- Added a Semaphore to ReadyQueue.
+- Initialized the semaphore with value 0.
+- Added semaphore.release() in add().
+- Added semaphore.acquire() before removing a process from the queue.
+- Removed the busy-waiting behavior.
+  
+**Challenges**: i was initially confused about the correct initial value of the semaphore and how CPUs would terminate when all processes finished
 
-**Challenges**:
+**Solution**: I reviewed the assignment instructions and determined that the semaphore should start at 0 because the queue is initially empty  I also implemented the shutdown signal using release(SharedStats.totalCPUs)
 
-**Solution**:
-
-**Time spent**:
+**Time spent**:  2 hours
 
 ---
 
-### Entry 5 - [Date and Time]
-**What I did**:
+### Entry 5 - [November 15, 2026, 10:00 PM]
+**What I did**: committed Feature 3, tested the final solution
 
 **Details**:
+- Finished implementing the counting semaphore solution.
+- Verified that CPUs wait using acquire() instead of busy waiting.
+- Added the shutdown signal using release(SharedStats.totalCPUs).
+- Ran the program several times to verify the synchronization behavior.
+- Confirmed that Busy-waiting polls = 0.
+- Created and pushed the commit: Feature 3: Replaced busy waiting with a counting semaphore.
 
-**Challenges**:
+**Challenges**: I wanted to make sure that all CPU threads terminated correctly when the last process finished and that no thread remained blocked on the semaphore. 
 
-**Solution**:
+**Solution**:  I carefully tested the shutdown logic and checked the verification block after each run. The program terminated normally and all verification checks passed. 
 
-**Time spent**:
+**Time spent**:  1 hour
 
 ---
 
-### Entry 6 - [Optional - Date and Time]
-**What I did**:
+### Entry 6 - [Optional -November 16, 2026, 6:30 PM]
+**What I did**: Completed the project documentation and reviewed the final solution.
 
 **Details**:
+- Read the assignment instructions again to ensure all requirements were satisfied.
+- Reviewed the implementation of Features 1, 2, and 3.
+- Completed the answers in MY_WORK.md.
+- Reviewed commit history to make sure each feature had its own meaningful commit.
+- Compared the starter output with the final output.
+  
+**Challenges**:I needed to clearly explain the synchronization decisions and justify my design choices in the documentation.
 
-**Challenges**:
+**Solution**: I reviewed my code and the assignment requirements, then documented the reasoning behind the use of ReentrantLock and Semaphore in a clear and organized way. 
 
-**Solution**:
-
-**Time spent**:
+**Time spent**: 1 hour 25 minutes
 
 ---
 
@@ -214,13 +249,13 @@
 
 > 💡 **TIP:** Fill this in **last**, after all entries are written.
 
-**Total time spent on assignment**: [X hours]
+**Total time spent on assignment**: [6.25 hours]
 
-**Most challenging part**:
+**Most challenging part**: Implementing Feature 3 with the counting semaphore. I initially found it difficult to determine the correct initial semaphore value and to ensure that all CPU threads terminated correctly when the last process finished without causing deadlock or leaving threads blocked forever.
 
-**Most interesting learning**:
+**Most interesting learning**: Understanding how race conditions occur in concurrent programs and how synchronization tools such as ReentrantLock and Semaphore can be used to protect shared resources and coordinate multiple threads safely. It was also interesting to observe how small synchronization mistakes can lead to incorrect results, lost updates, or program hangs.
 
-**What I would do differently next time**:
+**What I would do differently next time**: I would test every small change immediately after implementing it instead of waiting until a whole feature was completed. This would make it easier to identify the source of bugs and reduce debugging time 
 
 ---
 
